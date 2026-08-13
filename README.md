@@ -12,21 +12,20 @@ contacts the network.**
 
 Typical case — clean tree, nothing unusual:
 
-<!-- SCREENSHOT SLOT 1: clean/typical case. Replace the code block below. -->
+![Two-line status line. Top: "Opus 5 · HIGH · 🌿 main" with the branch in green for a clean tree. Bottom: a part-filled context bar reading "47% ctx · 5h 28% · ⟳ 3h57m · 7d 28%"](docs/clean.png)
 
-```
-Claude Opus 5 · HIGH · 🌿 main
-██████░░░░ 62% ctx · 5h 34% · ⟳ 2h11m · 7d 18%
-```
+Note what is *absent*: no permission-mode segment, no git counts, no stash. Each
+piece hides itself when it has nothing to say, so an ordinary session stays
+short.
 
-Everything at once — the kitchen sink, so each symbol has a reference:
+Everything at once, so each symbol has a reference — a repo mid-merge, diverged
+from upstream, with conflicts, staged and unstaged changes, a deletion, untracked
+files and stashes:
 
-<!-- SCREENSHOT SLOT 2: kitchen-sink case. Replace the code block below. -->
+![Two-line status line. Top: "Opus 5 · HIGH PLAN · 🌿 main ↑2 ↓1 [MERGE] !!1 +3 ~2 -1 ?4 · 📦2" with the branch in red for conflicts. Bottom: a full red context bar reading "92% ctx · 5h 72% · ⟳ 2h45m · 7d 41%"](docs/all-segments.png)
 
-```
-Claude Opus 5 · HIGH · PLAN · 🌿 main ↑2 ↓1 [REBASE] !!1 +3 ~2 -1 ?4 · 📦2
-█████████░ 91% ctx · 5h 78% · ⟳ 0h42m · 7d 55%
-```
+You are unlikely to see all of that at once outside a deliberately staged repo.
+Every value in both screenshots is synthetic.
 
 ## Legend
 
