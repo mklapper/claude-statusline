@@ -98,6 +98,10 @@ subprocess and four is the difference between a status line that keeps up with
 typing and one that lags it. Results are cached for 5 seconds, keyed on session
 id, so rapid refreshes don't re-run it at all.
 
+More on *why* the symbols, colours and ordering are what they are — including a
+bash gotcha the cache design exists to avoid — is in
+[docs/design-notes.md](docs/design-notes.md).
+
 ## Limits
 
 - **Linux, realistically.** `mapfile` needs bash 4+ (macOS ships 3.2 as
