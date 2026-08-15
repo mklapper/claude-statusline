@@ -1,0 +1,9 @@
+This repo is PUBLIC-DESTINED: it has no private space.
+
+Nothing goes in it — file or commit message — that would not be published.
+Rough messages ("wip", "fix typo") are fine: vacuous, not revealing.
+
+A commit-stage hook uses this file's PRESENCE to enable that check. Deleting the
+file does not disable anything: the check looks for it anywhere in history,
+deliberately, because a working-tree test is silently defeated by rebase,
+cherry-pick onto an old base, or a detached checkout.
