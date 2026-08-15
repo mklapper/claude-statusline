@@ -58,7 +58,10 @@ fi
 # and shift every later field — same gotcha as the jq read above):
 # DETACHED NAME AHEAD BEHIND OPSTATE CONFLICTS STAGED MODIFIED DELETED UNTRACKED STASH
 GIT_SEG=""
-CACHE="/tmp/claude-statusline-git-${SESSION_ID:-none}"
+# Prefer XDG_RUNTIME_DIR: it is per-user and mode 0700, so the cache path is not
+# guessable-and-writable by another account. /tmp is the fallback for systems that
+# do not set it — acceptable on a single-user box, worth knowing on a shared one.
+CACHE="${XDG_RUNTIME_DIR:-/tmp}/claude-statusline-git-${SESSION_ID:-none}"
 stale() { [ ! -f "$CACHE" ] || [ $(( $(date +%s) - $(stat -c %Y "$CACHE" 2>/dev/null || echo 0) )) -gt 5 ]; }
 if stale; then
   if git rev-parse --git-dir >/dev/null 2>&1; then
@@ -71,6 +74,11 @@ if stale; then
     if [[ "$REST" == "HEAD (no branch)"* ]]; then
       DETACHED=1
       NAME=$(git rev-parse --short HEAD 2>/dev/null)
+    elif [[ "$REST" == "No commits yet on "* ]]; then
+      # A repo with no commits reports "## No commits yet on main" — no "..."
+      # separator, so the %%... strip below would leave the whole sentence and
+      # render it as if it were the branch name.
+      NAME=${REST#No commits yet on }
     else
       NAME=${REST%%...*}
     fi
@@ -176,7 +184,7 @@ fi
 
 # --- effort tag ---------------------------------------------------------------
 EFFORT_SEG=""
-[ -n "$EFFORT" ] && EFFORT_SEG="${DIM}·${RESET}${MAGENTA}$(printf '%s' "$EFFORT" | tr '[:lower:]' '[:upper:]')${RESET}"
+[ -n "$EFFORT" ] && EFFORT_SEG="${DIM}·${RESET}${MAGENTA}${EFFORT^^}${RESET}"   # ^^ not tr: no subprocess
 
 # --- render (two lines) -------------------------------------------------------
 printf '%b\n' "${CYAN}${MODEL}${RESET}${EFFORT_SEG}${MODE_SEG}${GIT_SEG}"
