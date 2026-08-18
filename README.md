@@ -73,7 +73,7 @@ That's it — no build step and nothing to install beyond `jq`.
 
 ## How it works
 
-Two parts are less obvious than the rest, and are most of why this exists.
+Two parts are less obvious than the rest.
 
 **Permission mode isn't in the status line payload.** Claude Code pushes a JSON
 object on stdin with the model, context percentage, and rate limits — but not the
@@ -92,14 +92,14 @@ git status --porcelain=v1 --branch
 
 returns branch, upstream ahead/behind, and every dirty path in a single
 invocation, and the per-file `XY` status codes carry enough to separate
-conflicts, staged, modified, deleted, and untracked with one pass. That matters
-because a status line runs on a refresh interval — the difference between one
-subprocess and four is the difference between a status line that keeps up with
-typing and one that lags it. Results are cached for 5 seconds, keyed on session
-id, so rapid refreshes don't re-run it at all.
+conflicts, staged, modified, deleted, and untracked with one pass. The gain is
+not speed. `--porcelain=v1` reports something `numstat` does not: it
+distinguishes a deletion from a modification, which the earlier version had to
+lump together. Results are cached for 5 seconds, keyed on session id, so rapid
+refreshes don't re-run it at all.
 
-More on *why* the symbols, colours and ordering are what they are — including a
-bash gotcha the cache design exists to avoid — is in
+More on *why* the symbols, colors and ordering are what they are — including why
+the state cache is newline-delimited — is in
 [docs/design-notes.md](docs/design-notes.md).
 
 ## Limits
