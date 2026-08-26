@@ -1,8 +1,11 @@
 # claude-statusline
 
-A two-line status line for [Claude Code](https://claude.com/claude-code), in bash
-and `jq`. Shows the model, effort level, permission mode, a detailed git segment,
-a context-window bar, and rate-limit usage with a reset countdown.
+A two-line status line for [Claude Code](https://claude.com/claude-code). Shows
+the model, effort level, permission mode, a detailed git segment, a
+context-window bar, and rate-limit usage with a reset countdown.
+
+Two implementations, functionally identical: `statusline.sh` (bash + `jq`) and
+`statusline.ps1` (PowerShell 7+, for Windows).
 
 Everything is local. The session JSON arrives on stdin, and permission mode is
 read from the transcript file Claude Code already maintains. **Nothing here
@@ -51,6 +54,10 @@ the underlying data isn't present.
 
 ## Install
 
+Two scripts, same behavior — pick the one for your platform.
+
+### bash (Linux/macOS)
+
 Requires **bash 4+**, **`jq`**, and GNU coreutils (`tac`, `stat -c`) — so Linux in
 practice. See *Limits* below.
 
@@ -70,6 +77,27 @@ practice. See *Limits* below.
    ```
 
 That's it — no build step and nothing to install beyond `jq`.
+
+### PowerShell (Windows)
+
+Requires **PowerShell 7+** (`pwsh`) — it uses the `?.`/`??` operators introduced
+there. No `jq`: `ConvertFrom-Json` is native, so there's nothing extra to install.
+
+1. Put `statusline.ps1` somewhere, e.g. `~/.claude/statusline.ps1`.
+
+2. Point Claude Code at it in `~/.claude/settings.json`:
+
+   ```json
+   {
+     "statusLine": {
+       "type": "command",
+       "command": "pwsh -NoProfile -File \"C:\\Users\\you\\.claude\\statusline.ps1\""
+     },
+     "refreshInterval": 10
+   }
+   ```
+
+That's it — no build step and nothing to install beyond PowerShell itself.
 
 ## How it works
 
@@ -98,15 +126,24 @@ distinguishes a deletion from a modification, which the earlier version had to
 lump together. Results are cached for 5 seconds, keyed on session id, so rapid
 refreshes don't re-run it at all.
 
+`statusline.ps1` mirrors both techniques directly — the same single
+`git status --porcelain=v1 --branch` call, and the same last-`permissionMode`-wins
+read of the transcript — using native `ConvertFrom-Json` instead of `jq`, and a
+plain forward pass over the transcript instead of `tac`/`head`.
+
 More on *why* the symbols, colors and ordering are what they are — including why
 the state cache is newline-delimited — is in
 [docs/design-notes.md](docs/design-notes.md).
 
 ## Limits
 
-- **Linux, realistically.** `mapfile` needs bash 4+ (macOS ships 3.2 as
-  `/bin/bash`), and `tac` / `stat -c` are GNU coreutils. Homebrew bash plus the
-  BSD equivalents would get most of the way there; that port isn't done.
+- **`statusline.sh` — Linux, realistically.** `mapfile` needs bash 4+ (macOS
+  ships 3.2 as `/bin/bash`), and `tac` / `stat -c` are GNU coreutils. Homebrew
+  bash plus the BSD equivalents would get most of the way there; that port
+  isn't done.
+- **`statusline.ps1` covers Windows** (tested there against PowerShell 7+) and
+  is structurally OS-agnostic — no Windows-only APIs — so it likely runs under
+  `pwsh` on Linux/macOS too, though that hasn't been verified.
 - **Rate-limit segments are plan-dependent.** `rate_limits` is only present on
   some plans, and is absent until the first API response — those segments hide
   themselves rather than showing zeros.
